@@ -1,6 +1,7 @@
 package com.klewerro.githubusers.di
 
-import com.klewerro.githubusers.users.UsersViewModel
+import androidx.room.Room
+import com.klewerro.githubusers.core.data.local.CacheDatabase
 import com.klewerro.githubusers.users.data.UserRepositoryImpl
 import com.klewerro.githubusers.users.data.remote.KtorUserDataSource
 import com.klewerro.githubusers.users.domain.UserDataSource
@@ -13,6 +14,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -23,8 +25,15 @@ val appModule = module {
     single<UserRepository> {
         UserRepositoryImpl(userDataSource = get())
     }
-    single<UserDataSource> {
-        KtorUserDataSource(httpClient = get())
+    single {
+        Room.databaseBuilder(
+            androidContext(),
+            CacheDatabase::class.java,
+            "github_users_cache_db"
+        ).build()
+    }
+    single<UserRemoteDataSource> {
+        KtorUserRemoteDataSource(httpClient = get())
     }
     single {
         HttpClient {
