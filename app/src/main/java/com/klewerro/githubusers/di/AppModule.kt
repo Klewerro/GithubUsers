@@ -3,9 +3,10 @@ package com.klewerro.githubusers.di
 import androidx.room.Room
 import com.klewerro.githubusers.core.data.local.CacheDatabase
 import com.klewerro.githubusers.users.data.UserRepositoryImpl
-import com.klewerro.githubusers.users.data.remote.KtorUserDataSource
-import com.klewerro.githubusers.users.domain.UserDataSource
+import com.klewerro.githubusers.users.data.remote.KtorUserRemoteDataSource
+import com.klewerro.githubusers.users.domain.UserRemoteDataSource
 import com.klewerro.githubusers.users.domain.UserRepository
+import com.klewerro.githubusers.users.presentation.UsersViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
@@ -23,7 +24,7 @@ val appModule = module {
         UsersViewModel(userRepository = get())
     }
     single<UserRepository> {
-        UserRepositoryImpl(userDataSource = get())
+        UserRepositoryImpl(userRemoteDataSource = get(), cacheDatabase = get())
     }
     single {
         Room.databaseBuilder(
