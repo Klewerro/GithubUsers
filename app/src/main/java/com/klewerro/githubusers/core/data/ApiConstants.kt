@@ -6,4 +6,6 @@ object ApiConstants {
     const val PARAM_PER_PAGE = "per_page"
     const val PARAM_PAGE = "page"
     const val PARAM_QUERY = "q"
+    const val HEADER_REMAINING_RATE = "x-ratelimit-remaining"
+    const val HEADER_RATE_LIMIT_RESET_TIME = "x-ratelimit-reset"
 }

@@ -8,7 +8,8 @@
     <string name="client_error_description">Client error</string>
     <string name="server_error_description">[500] Error occurred on the server</string>
     <string name="serialization_error_description">Data processing error on the device. Please contact with the support.</string>
-    <string name="rate_limit_exceeded_description">[403] Request limit exceeded. Please retry your request after 1 minute.</string>
+    <string name="rate_limit_exceeded_description">[403] Request limit exceeded. Time will reset at %1$s</string>
+    <string name="one_minute">one minute</string>
     <string name="unprocessable_query_description">[422] Unprocessable or empty user name.</string>
     <string name="unknown_error_please_contact_with_the_support">Unknown error. Please contact with the support.</string>
     <string name="avatar">avatar</string>
