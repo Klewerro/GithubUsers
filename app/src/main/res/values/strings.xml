@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">GithubUsers</string>
+    <string name="retry">Retry</string>
+    <string name="retry_fetch_new_users">Retry fetch new users</string>
+    <string name="search_for_users_using_provided_username">Search for users using provided username</string>
+    <string name="rate_limit_exceeded">Rate limit exceeded!</string>
+    <string name="missing_internet_connection">Missing internet connection</string>
+    <string name="client_error_description">Client error</string>
+    <string name="server_error_description">[500] Error occurred on the server</string>
+    <string name="serialization_error_description">Data processing error on the device. Please contact with the support.</string>
+    <string name="rate_limit_exceeded_description">[403] Request limit exceeded. Please retry your request after 1 minute.</string>
+    <string name="unprocessable_query_description">[422] Unprocessable or empty user name.</string>
+    <string name="unknown_error_please_contact_with_the_support">Unknown error. Please contact with the support.</string>
+    <string name="avatar">avatar</string>
 </resources>
