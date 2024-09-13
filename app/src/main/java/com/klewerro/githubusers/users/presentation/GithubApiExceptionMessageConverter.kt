@@ -19,8 +19,10 @@ object GithubApiExceptionMessageConverter {
             GithubApiErrorType.SERIALIZATION_ERROR ->
                 context.getString(R.string.serialization_error_description)
 
-            GithubApiErrorType.RATE_LIMIT_EXCEEDED ->
-                context.getString(R.string.rate_limit_exceeded_description)
+            GithubApiErrorType.RATE_LIMIT_EXCEEDED -> context.getString(
+                R.string.rate_limit_exceeded_description,
+                this.additionalInformation ?: context.getString(R.string.one_minute)
+            )
 
             GithubApiErrorType.UNPROCESSABLE_QUERY ->
                 context.getString(R.string.unprocessable_query_description)
@@ -41,8 +43,10 @@ object GithubApiExceptionMessageConverter {
             GithubApiErrorType.SERIALIZATION_ERROR ->
                 stringResource(R.string.serialization_error_description)
 
-            GithubApiErrorType.RATE_LIMIT_EXCEEDED ->
-                stringResource(R.string.rate_limit_exceeded_description)
+            GithubApiErrorType.RATE_LIMIT_EXCEEDED -> stringResource(
+                R.string.rate_limit_exceeded_description,
+                this.additionalInformation ?: stringResource(R.string.one_minute)
+            )
 
             GithubApiErrorType.UNPROCESSABLE_QUERY ->
                 stringResource(R.string.unprocessable_query_description)
