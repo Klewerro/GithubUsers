@@ -3,7 +3,9 @@ package com.klewerro.githubusers.di
 import androidx.room.Room
 import com.klewerro.githubusers.core.data.local.CacheDatabase
 import com.klewerro.githubusers.users.data.UserRepositoryImpl
+import com.klewerro.githubusers.users.data.local.keyValue.DataStoreAppPreferences
 import com.klewerro.githubusers.users.data.remote.KtorUserRemoteDataSource
+import com.klewerro.githubusers.users.domain.AppPreferences
 import com.klewerro.githubusers.users.domain.UserRemoteDataSource
 import com.klewerro.githubusers.users.domain.UserRepository
 import com.klewerro.githubusers.users.presentation.UsersViewModel
@@ -24,7 +26,11 @@ val appModule = module {
         UsersViewModel(userRepository = get())
     }
     single<UserRepository> {
-        UserRepositoryImpl(userRemoteDataSource = get(), cacheDatabase = get())
+        UserRepositoryImpl(
+            userRemoteDataSource = get(),
+            cacheDatabase = get(),
+            appPreferences = get()
+        )
     }
     single {
         Room.databaseBuilder(
@@ -32,6 +38,9 @@ val appModule = module {
             CacheDatabase::class.java,
             "github_users_cache_db"
         ).build()
+    }
+    single<AppPreferences> {
+        DataStoreAppPreferences(context = androidContext())
     }
     single<UserRemoteDataSource> {
         KtorUserRemoteDataSource(httpClient = get())
