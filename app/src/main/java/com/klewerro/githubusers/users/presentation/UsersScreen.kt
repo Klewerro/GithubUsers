@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun UsersScreen(modifier: Modifier = Modifier) {
+fun UsersScreen(onUserClick: (User) -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val usersViewModel = koinViewModel<UsersViewModel>()
 
@@ -62,6 +62,7 @@ fun UsersScreen(modifier: Modifier = Modifier) {
         userPager = userPager,
         onEvent = usersViewModel::onEvent,
         isRefreshable = state.isRepositoryQueryNotBlank,
+        onUserClick = onUserClick,
         modifier = modifier
     )
 }
@@ -72,6 +73,7 @@ private fun UsersScreenContent(
     searchText: String,
     userPager: LazyPagingItems<User>,
     onEvent: (UsersEvent) -> Unit,
+    onUserClick: (User) -> Unit,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -112,6 +114,7 @@ private fun UsersScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
             UsersLazyColumn(
                 userPager = userPager,
+                onUserClick = onUserClick,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -141,6 +144,7 @@ private fun UsersScreenContentPreview() {
             "query",
             userPager = pagingFlow,
             onEvent = {},
+            onUserClick = {},
             isRefreshable = false
         )
     }
@@ -168,6 +172,7 @@ private fun UsersScreenContentPreviewRefreshLoading() {
             "query",
             userPager = pagingFlow,
             onEvent = {},
+            onUserClick = {},
             isRefreshable = false
         )
     }
@@ -195,6 +200,7 @@ private fun UsersScreenContentPreviewAppendLoading() {
             "query",
             userPager = pagingFlow,
             onEvent = {},
+            onUserClick = {},
             isRefreshable = false
         )
     }
@@ -224,6 +230,7 @@ private fun UsersScreenContentPreviewAppendLoadingError() {
             "query",
             userPager = pagingFlow,
             onEvent = {},
+            onUserClick = {},
             isRefreshable = false
         )
     }
