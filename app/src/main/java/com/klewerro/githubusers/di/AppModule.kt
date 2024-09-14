@@ -2,6 +2,11 @@ package com.klewerro.githubusers.di
 
 import androidx.room.Room
 import com.klewerro.githubusers.core.data.local.CacheDatabase
+import com.klewerro.githubusers.userDetails.data.GithubRepositoryRepositoryImpl
+import com.klewerro.githubusers.userDetails.data.local.GithubRepositoryDao
+import com.klewerro.githubusers.userDetails.data.remote.KtorGithubRepositoryRemoteDataSource
+import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRemoteDataSource
+import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRepository
 import com.klewerro.githubusers.userDetails.presentation.UserDetailsViewModel
 import com.klewerro.githubusers.users.data.UserRepositoryImpl
 import com.klewerro.githubusers.users.data.local.keyValue.DataStoreAppPreferences
@@ -27,7 +32,7 @@ val appModule = module {
         UsersViewModel(userRepository = get())
     }
     viewModel {
-        UserDetailsViewModel(savedState = get())
+        UserDetailsViewModel(savedState = get(), githubRepositoryRepository = get())
     }
     single<UserRepository> {
         UserRepositoryImpl(
@@ -36,18 +41,32 @@ val appModule = module {
             appPreferences = get()
         )
     }
+    single<UserRemoteDataSource> {
+        KtorUserRemoteDataSource(httpClient = get())
+    }
+    single<AppPreferences> {
+        DataStoreAppPreferences(context = androidContext())
+    }
+
+    single<GithubRepositoryRepository> {
+        GithubRepositoryRepositoryImpl(
+            githubRepositoryDao = get(),
+            githubRepositoryRemoteDataSource = get()
+        )
+    }
+    single<GithubRepositoryDao> {
+        get<CacheDatabase>().githubRepositoryDao
+    }
+    single<GithubRepositoryRemoteDataSource> {
+        KtorGithubRepositoryRemoteDataSource(httpClient = get())
+    }
+
     single {
         Room.databaseBuilder(
             androidContext(),
             CacheDatabase::class.java,
             "github_users_cache_db"
         ).build()
-    }
-    single<AppPreferences> {
-        DataStoreAppPreferences(context = androidContext())
-    }
-    single<UserRemoteDataSource> {
-        KtorUserRemoteDataSource(httpClient = get())
     }
     single {
         HttpClient {
