@@ -8,29 +8,36 @@ import com.klewerro.githubusers.core.data.local.CacheDatabase
 import com.klewerro.githubusers.core.util.AppConstants
 import com.klewerro.githubusers.users.data.local.UserEntity
 import com.klewerro.githubusers.users.data.mapper.toUser
+import com.klewerro.githubusers.users.domain.AppPreferences
 import com.klewerro.githubusers.users.domain.UserRemoteDataSource
 import com.klewerro.githubusers.users.domain.UserRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import timber.log.Timber
 
 class UserRepositoryImpl(
     private val userRemoteDataSource: UserRemoteDataSource,
-    private val cacheDatabase: CacheDatabase
+    private val cacheDatabase: CacheDatabase,
+    private val appPreferences: AppPreferences
 ) : UserRepository {
 
-    private val _searchQueryFlow = MutableStateFlow("Klewer") // Todo: Temporary
-    override val searchQueryFlow = _searchQueryFlow.asStateFlow()
+    private var firstRefreshSkipped = false
+    private var searchQueryUpdatedFromEmptyText = false
 
-    override fun updateSearchQuery(searchQuery: String) {
-        _searchQueryFlow.update { searchQuery }
+    override val searchQueryFlow = appPreferences.query
+
+    override suspend fun updateSearchQuery(searchQuery: String) {
+        searchQueryUpdatedFromEmptyText = searchQueryFlow.first().isBlank()
+        Timber.d("searchQueryUpdatedFromEmptyText: $searchQueryUpdatedFromEmptyText")
+        appPreferences.setQuery(searchQuery)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val searchPager = searchQueryFlow
+        .filter { it.isNotBlank() }
         .flatMapLatest { query ->
             createSearchForUsersRemoteMediator(query)
                 .flow
@@ -40,6 +47,10 @@ class UserRepositoryImpl(
                     }
                 }
         }
+
+    override fun createSearchPagerFlow(searchQuery: String) =
+        createSearchForUsersRemoteMediator(searchQuery)
+            .flow
 
     @OptIn(ExperimentalPagingApi::class)
     private fun createSearchForUsersRemoteMediator(searchQuery: String): Pager<Int, UserEntity> =
@@ -51,7 +62,20 @@ class UserRepositoryImpl(
             remoteMediator = SearchForUsersRemoteMediator(
                 cacheDatabase = cacheDatabase,
                 userRemoteDataSource = userRemoteDataSource,
-                searchQuery = searchQuery
+                searchQuery = searchQuery,
+                skippFirstRefresh = {
+                    if (searchQueryUpdatedFromEmptyText) {
+                        // Not skipping first refresh, because that mechanism already happened
+                        // because of .filter { it.isNotBlank() } in searchPager flow field.
+                        false
+                    } else {
+                        val shouldSkip = !firstRefreshSkipped
+                        if (!firstRefreshSkipped) {
+                            firstRefreshSkipped = true
+                        }
+                        shouldSkip
+                    }
+                }
             ),
             pagingSourceFactory = {
                 cacheDatabase.userDao.pagingSource()

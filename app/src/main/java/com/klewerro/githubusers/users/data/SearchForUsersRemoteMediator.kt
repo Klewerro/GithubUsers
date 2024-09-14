@@ -11,25 +11,27 @@ import com.klewerro.githubusers.core.data.local.CacheDatabase
 import com.klewerro.githubusers.users.data.local.UserEntity
 import com.klewerro.githubusers.users.data.mapper.toUserEntity
 import com.klewerro.githubusers.users.domain.UserRemoteDataSource
+import kotlinx.coroutines.delay
 import timber.log.Timber
+import kotlin.time.Duration.Companion.seconds
 
 /**
- * Refresh will not be triggered automatically after creation of RemoteMediator - it will be need to
- * trigger by user manually. All updates made by RemoteMediator itself will be done
- * using APPEND method.
+ * Class using for synchronization between remote and local data sources.
+ * Omitting first refresh for presenting already collected data to the user.
+ *
+ * @param skippFirstRefresh is used to pass value from repository to determine, if first refresh was
+ * omitted or not.
  *
  * @see LoadType
  * @see InitializeAction
- *
  */
 @OptIn(ExperimentalPagingApi::class)
 class SearchForUsersRemoteMediator(
     private val cacheDatabase: CacheDatabase,
     private val userRemoteDataSource: UserRemoteDataSource,
-    private val searchQuery: String
+    private val searchQuery: String,
+    private val skippFirstRefresh: () -> Boolean
 ) : RemoteMediator<Int, UserEntity>() {
-
-    override suspend fun initialize(): InitializeAction = InitializeAction.SKIP_INITIAL_REFRESH
 
     override suspend fun load(
         loadType: LoadType,
@@ -39,8 +41,13 @@ class SearchForUsersRemoteMediator(
         return try {
             val loadKey = when (loadType) {
                 LoadType.REFRESH -> {
+                    if (skippFirstRefresh()) {
+                        Timber.d("First refresh skipped")
+                        return MediatorResult.Success(endOfPaginationReached = false)
+                    }
+
                     if (searchQuery.isNotBlank()) {
-                        1 // start from star
+                        1 // start from the 1st page
                     } else {
                         return MediatorResult.Error(Exception("Empty search query"))
                     }
@@ -57,7 +64,8 @@ class SearchForUsersRemoteMediator(
                     }
                 }
             }
-//            delay(3.seconds)
+
+            delay(3.seconds)
             Timber.d("loadKey: $loadKey")
             Timber.d("LoadType: $loadType")
             val searchForUsersResponse = userRemoteDataSource.searchForUsers(
