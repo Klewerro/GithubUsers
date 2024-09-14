@@ -2,6 +2,7 @@ package com.klewerro.githubusers.di
 
 import androidx.room.Room
 import com.klewerro.githubusers.core.data.local.CacheDatabase
+import com.klewerro.githubusers.userDetails.presentation.UserDetailsViewModel
 import com.klewerro.githubusers.users.data.UserRepositoryImpl
 import com.klewerro.githubusers.users.data.local.keyValue.DataStoreAppPreferences
 import com.klewerro.githubusers.users.data.remote.KtorUserRemoteDataSource
@@ -24,6 +25,9 @@ import org.koin.dsl.module
 val appModule = module {
     viewModel {
         UsersViewModel(userRepository = get())
+    }
+    viewModel {
+        UserDetailsViewModel(savedState = get())
     }
     single<UserRepository> {
         UserRepositoryImpl(
