@@ -1,4 +1,4 @@
-package com.klewerro.githubusers.users.presentation
+package com.klewerro.githubusers.users.presentation.composable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
