@@ -34,7 +34,11 @@ import com.klewerro.githubusers.users.presentation.GithubApiExceptionMessageConv
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
-fun UsersLazyColumn(userPager: LazyPagingItems<User>, modifier: Modifier = Modifier) {
+fun UsersLazyColumn(
+    userPager: LazyPagingItems<User>,
+    modifier: Modifier = Modifier,
+    onUserClick: (User) -> Unit
+) {
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -50,7 +54,7 @@ fun UsersLazyColumn(userPager: LazyPagingItems<User>, modifier: Modifier = Modif
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            // Todo: Propagate navigation event
+                            onUserClick(userItem)
                         }
                 )
             }
@@ -105,7 +109,8 @@ private fun UsersLazyColumnPreview() {
     ).collectAsLazyPagingItems()
     GithubUsersTheme {
         UsersLazyColumn(
-            pagingFlow,
+            userPager = pagingFlow,
+            onUserClick = {},
             modifier = Modifier.fillMaxWidth()
         )
     }
