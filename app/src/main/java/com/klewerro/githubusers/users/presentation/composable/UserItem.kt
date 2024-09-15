@@ -57,7 +57,7 @@ fun UserItem(
                     modifier = Modifier
                         .weight(1f)
                         .sharedElement(
-                            state = rememberSharedContentState(key = "image/${user.login}/${user.avatarUrl}"),
+                            state = rememberSharedContentState(key = "image/${user.login}"),
                             animatedVisibilityScope = animatedVisibilityScope
                         )
                         .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
