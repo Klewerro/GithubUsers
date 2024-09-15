@@ -43,7 +43,7 @@ fun UserDetailsScreen(
                     .size(250.dp)
                     .sharedElement(
                         state = rememberSharedContentState(
-                            key = "image/${user.login}/${user.avatarUrl}"
+                            key = "image/${user.login}"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope
                     )
