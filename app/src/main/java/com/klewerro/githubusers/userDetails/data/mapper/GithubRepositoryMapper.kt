@@ -16,7 +16,9 @@ fun GithubRepositoryEntity.toGithubRepository() = GithubRepository(
     language = this.language,
     pushedAt = this.pushedAt,
     stargazersCount = this.stargazersCount,
-    watchersCount = this.watchersCount
+    watchersCount = this.watchersCount,
+    forksCount = this.forksCount,
+    openIssuesCount = this.openIssuesCount
 )
 
 fun GithubRepositoryDto.toEntity(userId: Int): GithubRepositoryEntity = GithubRepositoryEntity(
@@ -30,6 +32,8 @@ fun GithubRepositoryDto.toEntity(userId: Int): GithubRepositoryEntity = GithubRe
     language = this.language,
     stargazersCount = this.stargazersCount,
     watchersCount = this.watchersCount,
+    forksCount = this.forksCount,
+    openIssuesCount = this.openIssuesCount,
     userId = userId
 )
 
