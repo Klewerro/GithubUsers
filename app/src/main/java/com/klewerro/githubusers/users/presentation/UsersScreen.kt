@@ -1,6 +1,11 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.klewerro.githubusers.users.presentation
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +32,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.klewerro.githubusers.core.data.error.GithubApiErrorType
 import com.klewerro.githubusers.core.data.error.GithubApiException
+import com.klewerro.githubusers.core.presentation.composable.SharedTransitionLayoutPreviewWrapper
 import com.klewerro.githubusers.core.util.testData.UserTestData
 import com.klewerro.githubusers.ui.theme.GithubUsersTheme
 import com.klewerro.githubusers.users.domain.model.User
@@ -36,8 +42,14 @@ import com.klewerro.githubusers.users.presentation.composable.UsersLazyColumn
 import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun UsersScreen(onUserClick: (User) -> Unit, modifier: Modifier = Modifier) {
+fun UsersScreen(
+    onUserClick: (User) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val usersViewModel = koinViewModel<UsersViewModel>()
 
@@ -63,17 +75,21 @@ fun UsersScreen(onUserClick: (User) -> Unit, modifier: Modifier = Modifier) {
         onEvent = usersViewModel::onEvent,
         isRefreshable = state.isRepositoryQueryNotBlank,
         onUserClick = onUserClick,
+        animatedVisibilityScope = animatedVisibilityScope,
+        sharedTransitionScope = sharedTransitionScope,
         modifier = modifier
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 private fun UsersScreenContent(
     searchText: String,
     userPager: LazyPagingItems<User>,
     onEvent: (UsersEvent) -> Unit,
     onUserClick: (User) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -115,6 +131,8 @@ private fun UsersScreenContent(
             UsersLazyColumn(
                 userPager = userPager,
                 onUserClick = onUserClick,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -140,13 +158,17 @@ private fun UsersScreenContentPreview() {
         )
     ).collectAsLazyPagingItems()
     GithubUsersTheme {
-        UsersScreenContent(
-            "query",
-            userPager = pagingFlow,
-            onEvent = {},
-            onUserClick = {},
-            isRefreshable = false
-        )
+        SharedTransitionLayoutPreviewWrapper {
+            UsersScreenContent(
+                "query",
+                userPager = pagingFlow,
+                onEvent = {},
+                onUserClick = {},
+                sharedTransitionScope = it.first,
+                animatedVisibilityScope = it.second,
+                isRefreshable = false
+            )
+        }
     }
 }
 
@@ -168,13 +190,17 @@ private fun UsersScreenContentPreviewRefreshLoading() {
         )
     ).collectAsLazyPagingItems()
     GithubUsersTheme {
-        UsersScreenContent(
-            "query",
-            userPager = pagingFlow,
-            onEvent = {},
-            onUserClick = {},
-            isRefreshable = false
-        )
+        SharedTransitionLayoutPreviewWrapper {
+            UsersScreenContent(
+                "query",
+                userPager = pagingFlow,
+                onEvent = {},
+                onUserClick = {},
+                sharedTransitionScope = it.first,
+                animatedVisibilityScope = it.second,
+                isRefreshable = false
+            )
+        }
     }
 }
 
@@ -196,13 +222,17 @@ private fun UsersScreenContentPreviewAppendLoading() {
         )
     ).collectAsLazyPagingItems()
     GithubUsersTheme {
-        UsersScreenContent(
-            "query",
-            userPager = pagingFlow,
-            onEvent = {},
-            onUserClick = {},
-            isRefreshable = false
-        )
+        SharedTransitionLayoutPreviewWrapper {
+            UsersScreenContent(
+                "query",
+                userPager = pagingFlow,
+                onEvent = {},
+                onUserClick = {},
+                sharedTransitionScope = it.first,
+                animatedVisibilityScope = it.second,
+                isRefreshable = false
+            )
+        }
     }
 }
 
@@ -226,13 +256,17 @@ private fun UsersScreenContentPreviewAppendLoadingError() {
         )
     ).collectAsLazyPagingItems()
     GithubUsersTheme {
-        UsersScreenContent(
-            "query",
-            userPager = pagingFlow,
-            onEvent = {},
-            onUserClick = {},
-            isRefreshable = false
-        )
+        SharedTransitionLayoutPreviewWrapper {
+            UsersScreenContent(
+                "query",
+                userPager = pagingFlow,
+                onEvent = {},
+                onUserClick = {},
+                sharedTransitionScope = it.first,
+                animatedVisibilityScope = it.second,
+                isRefreshable = false
+            )
+        }
     }
 }
 // endregion
