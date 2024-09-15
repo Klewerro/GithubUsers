@@ -27,6 +27,10 @@ data class GithubRepositoryEntity(
     val stargazersCount: Int,
     @ColumnInfo(name = "watchers_count")
     val watchersCount: Int,
+    @ColumnInfo(name = "forks_count")
+    val forksCount: Int,
+    @ColumnInfo(name = "open_issues_count")
+    val openIssuesCount: Int,
     @ColumnInfo(name = "user_id")
     val userId: Int
 )

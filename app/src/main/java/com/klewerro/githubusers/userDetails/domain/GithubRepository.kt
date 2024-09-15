@@ -10,5 +10,7 @@ data class GithubRepository(
     val language: String?,
     val pushedAt: String,
     val stargazersCount: Int,
-    val watchersCount: Int
+    val watchersCount: Int,
+    val forksCount: Int,
+    val openIssuesCount: Int
 )

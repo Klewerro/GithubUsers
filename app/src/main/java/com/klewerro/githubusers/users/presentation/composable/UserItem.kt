@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.klewerro.githubusers.R
 import com.klewerro.githubusers.core.presentation.composable.SharedTransitionLayoutPreviewWrapper
+import com.klewerro.githubusers.core.util.testData.UserTestData
 import com.klewerro.githubusers.ui.theme.GithubUsersTheme
 import com.klewerro.githubusers.users.domain.model.User
 
@@ -100,14 +101,7 @@ private fun UserItemPreview() {
     GithubUsersTheme {
         SharedTransitionLayoutPreviewWrapper {
             UserItem(
-                user = User(
-                    id = 1,
-                    type = "User",
-                    login = "Klewerro",
-                    url = "http://addres.com",
-                    avatarUrl = "http://addres.com",
-                    reposUrl = "http://repos.com"
-                ),
+                user = UserTestData.user1,
                 sharedTransitionScope = it.first,
                 animatedVisibilityScope = it.second,
                 modifier = Modifier.fillMaxWidth()
