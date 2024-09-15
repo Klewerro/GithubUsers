@@ -1,5 +1,10 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.klewerro.githubusers.users.presentation.composable
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -27,6 +32,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.klewerro.githubusers.R
 import com.klewerro.githubusers.core.data.error.GithubApiException
+import com.klewerro.githubusers.core.presentation.composable.SharedTransitionLayoutPreviewWrapper
 import com.klewerro.githubusers.core.util.testData.UserTestData
 import com.klewerro.githubusers.ui.theme.GithubUsersTheme
 import com.klewerro.githubusers.users.domain.model.User
@@ -36,6 +42,8 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun UsersLazyColumn(
     userPager: LazyPagingItems<User>,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     onUserClick: (User) -> Unit
 ) {
@@ -51,6 +59,8 @@ fun UsersLazyColumn(
             if (userItem != null) {
                 UserItem(
                     user = userItem,
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
@@ -108,10 +118,14 @@ private fun UsersLazyColumnPreview() {
         )
     ).collectAsLazyPagingItems()
     GithubUsersTheme {
-        UsersLazyColumn(
-            userPager = pagingFlow,
-            onUserClick = {},
-            modifier = Modifier.fillMaxWidth()
-        )
+        SharedTransitionLayoutPreviewWrapper {
+            UsersLazyColumn(
+                userPager = pagingFlow,
+                onUserClick = {},
+                sharedTransitionScope = it.first,
+                animatedVisibilityScope = it.second,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }

@@ -4,6 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,7 +34,7 @@ import com.klewerro.githubusers.users.presentation.UsersScreen
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -48,25 +54,40 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { innerPadding ->
-                    val navController = rememberNavController()
-                    Box(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .padding(16.dp)
-                    ) {
-                        NavHost(
-                            navController = navController,
-                            startDestination = NavRoutes.SearchUsersScreen
+                    SharedTransitionLayout {
+                        val navController = rememberNavController()
+                        Box(
+                            modifier = Modifier
+                                .padding(innerPadding)
+                                .padding(16.dp)
                         ) {
-                            composable<NavRoutes.SearchUsersScreen> {
-                                UsersScreen(onUserClick = { user ->
-                                    navController.navigate(NavRoutes.UserDetailsScreen(user))
-                                })
-                            }
-                            composable<NavRoutes.UserDetailsScreen>(
-                                typeMap = mapOf(typeOf<User>() to CustomNavType.UserType)
+                            NavHost(
+                                navController = navController,
+                                startDestination = NavRoutes.SearchUsersScreen,
+                                enterTransition = { slideInHorizontally { it } + fadeIn() },
+                                exitTransition = { slideOutHorizontally { -it } + fadeOut() },
+                                popEnterTransition = { slideInHorizontally { -it } + fadeIn() },
+                                popExitTransition = { slideOutHorizontally { it } + fadeOut() }
                             ) {
-                                UserDetailsScreen()
+                                composable<NavRoutes.SearchUsersScreen> {
+                                    UsersScreen(
+                                        sharedTransitionScope = this@SharedTransitionLayout,
+                                        animatedVisibilityScope = this,
+                                        onUserClick = { user ->
+                                            navController.navigate(
+                                                NavRoutes.UserDetailsScreen(user)
+                                            )
+                                        }
+                                    )
+                                }
+                                composable<NavRoutes.UserDetailsScreen>(
+                                    typeMap = mapOf(typeOf<User>() to CustomNavType.UserType)
+                                ) {
+                                    UserDetailsScreen(
+                                        sharedTransitionScope = this@SharedTransitionLayout,
+                                        animatedVisibilityScope = this
+                                    )
+                                }
                             }
                         }
                     }

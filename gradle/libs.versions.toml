@@ -28,6 +28,7 @@ compose-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycl
 compose-lifecycle-viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version = "2.8.0" }
 compose-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
+compose-animation = { group = "androidx.compose.animation", name = "animation", version = "1.7.1" }
 # endregion
 # region ktor
 ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -82,7 +83,8 @@ compose = [
     "compose-lifecycle-runtime-ktx",
     "compose-lifecycle-viewModel",
     "compose-navigation",
-    "compose-icons"
+    "compose-icons",
+    "compose-animation"
 ]
 ktor = [
     "ktor-core",
