@@ -9,9 +9,9 @@ data class UserDetailsEntity(
     @PrimaryKey
     val id: Int,
     val login: String,
-    val name: String,
-    val location: String,
-    val bio: String,
+    val name: String?,
+    val location: String?,
+    val bio: String?,
     val blog: String,
     val company: String?,
     val email: String?,
