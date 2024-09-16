@@ -11,6 +11,8 @@ import assertk.assertions.isTrue
 import com.klewerro.githubusers.core.util.testData.UserTestData
 import com.klewerro.githubusers.fake.FakeSavedStateProvider
 import com.klewerro.githubusers.fake.FakeUserInformationRepository
+import com.klewerro.githubusers.userDetails.domain.usecase.GetAndObserveRepositoriesUseCase
+import com.klewerro.githubusers.userDetails.domain.usecase.GetAndObserveUserDetailsUseCase
 import com.klewerro.githubusers.util.MainCoroutineExtension
 import com.klewerro.githubusers.util.TestDispatchers
 import kotlinx.coroutines.runBlocking
@@ -22,7 +24,9 @@ class UserDetailsViewModelTest {
 
     private lateinit var userDetailsViewModel: UserDetailsViewModel
     private lateinit var fakeSavedState: FakeSavedStateProvider
-    private lateinit var fakeGithubRepositoryRepository: FakeUserInformationRepository
+    private lateinit var fakeUserInformationRepository: FakeUserInformationRepository
+    private lateinit var getAndObserveUserDetailsUseCase: GetAndObserveUserDetailsUseCase
+    private lateinit var getAndObserveRepositoriesUseCase: GetAndObserveRepositoriesUseCase
 
     companion object {
         @JvmField
@@ -32,18 +36,29 @@ class UserDetailsViewModelTest {
 
     fun setUp(
         userHaveAnyRepository: Boolean = true,
-        getUserRepositoriesReturnSuccess: Boolean = true
+        getUserRepositoriesReturnSuccess: Boolean = true,
+        userHaveAnySavedDetails: Boolean = true,
+        getUserDetailsReturnSuccess: Boolean = true
     ) {
         fakeSavedState = FakeSavedStateProvider()
-        fakeGithubRepositoryRepository = FakeUserInformationRepository(
+        fakeUserInformationRepository = FakeUserInformationRepository(
             userHaveAnyRepository = userHaveAnyRepository,
-            getUserRepositoriesReturnSuccess = getUserRepositoriesReturnSuccess
+            getUserRepositoriesReturnSuccess = getUserRepositoriesReturnSuccess,
+            userHaveAnySavedDetails = userHaveAnySavedDetails,
+            getUserDetailsReturnSuccess = getUserDetailsReturnSuccess
         )
+        getAndObserveUserDetailsUseCase =
+            GetAndObserveUserDetailsUseCase(fakeUserInformationRepository)
+        getAndObserveRepositoriesUseCase =
+            GetAndObserveRepositoriesUseCase(fakeUserInformationRepository)
         val testDispatchers = TestDispatchers(mainCoroutineExtension.testDispatcher)
+
         userDetailsViewModel = UserDetailsViewModel(
             fakeSavedState,
-            fakeGithubRepositoryRepository,
-            testDispatchers
+            fakeUserInformationRepository,
+            testDispatchers,
+            getAndObserveUserDetailsUseCase,
+            getAndObserveRepositoriesUseCase
         )
     }
 
@@ -66,12 +81,13 @@ class UserDetailsViewModelTest {
             userDetailsViewModel.state.test {
                 val item1 = awaitItem()
                 val itemLoadedRepos = awaitItem()
+                // val item3 = awaitItem()
 
                 assertThat(item1.repositories).isEmpty()
                 assertThat(itemLoadedRepos.repositories).isNotEmpty()
                 assertThat(
                     itemLoadedRepos.repositories
-                ).isEqualTo(fakeGithubRepositoryRepository.user1Repos)
+                ).isEqualTo(fakeUserInformationRepository.user1Repos)
             }
         }
 
@@ -89,8 +105,8 @@ class UserDetailsViewModelTest {
                 assertThat(itemGetRepos.repositories).isNotEmpty()
                 assertThat(
                     itemGetRepos.repositories
-                ).isEqualTo(fakeGithubRepositoryRepository.user1Repos)
-                assertThat(fakeGithubRepositoryRepository.wasGetUserRepositoriesCalled).isTrue()
+                ).isEqualTo(fakeUserInformationRepository.user1Repos)
+                assertThat(fakeUserInformationRepository.wasGetUserRepositoriesCalled).isTrue()
                 assertThat(itemGetRepos.isLoading).isFalse()
             }
         }
@@ -108,7 +124,7 @@ class UserDetailsViewModelTest {
                 assertThat(itemLoading.isLoading).isTrue()
                 assertThat(itemGetRepos.repositories).isEmpty()
                 assertThat(itemGetRepos.apiError).isNotNull()
-                assertThat(fakeGithubRepositoryRepository.wasGetUserRepositoriesCalled).isTrue()
+                assertThat(fakeUserInformationRepository.wasGetUserRepositoriesCalled).isTrue()
                 assertThat(itemGetRepos.isLoading).isFalse()
             }
         }
