@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.klewerro.githubusers.core.presentation.composable.SharedTransitionLayoutPreviewWrapper
 import com.klewerro.githubusers.core.util.testData.GithubRepositoryTestData
+import com.klewerro.githubusers.core.util.testData.UserDetailsTestData
 import com.klewerro.githubusers.core.util.testData.UserTestData
 import com.klewerro.githubusers.ui.theme.GithubUsersTheme
 import com.klewerro.githubusers.userDetails.presentation.composable.GithubRepositoryListItem
@@ -91,8 +92,8 @@ fun UserDetailsScreenContent(
         ) {
             item {
                 UserInformation(
-                    login = state.user.login,
-                    avatarUrl = state.user.avatarUrl,
+                    user = state.user,
+                    userDetails = state.userDetails,
                     sharedTransitionScope = sharedTransitionScope,
                     animatedVisibilityScope = animatedVisibilityScope,
                     modifier = Modifier.fillMaxWidth()
@@ -112,6 +113,7 @@ fun UserDetailsScreenContent(
 private fun UserDetailsScreenPreview() {
     val state = UserDetailsState(
         user = UserTestData.user1,
+        userDetails = UserDetailsTestData.userDetails1,
         repositories = listOf(
             GithubRepositoryTestData.repository1,
             GithubRepositoryTestData.repository1.copy(name = "Repo 2"),

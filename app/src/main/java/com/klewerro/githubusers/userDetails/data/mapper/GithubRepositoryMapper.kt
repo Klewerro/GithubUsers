@@ -2,7 +2,7 @@ package com.klewerro.githubusers.userDetails.data.mapper
 
 import com.klewerro.githubusers.userDetails.data.local.githubRepository.GithubRepositoryEntity
 import com.klewerro.githubusers.userDetails.data.remote.GithubRepositoryDto
-import com.klewerro.githubusers.userDetails.domain.GithubRepository
+import com.klewerro.githubusers.userDetails.domain.model.GithubRepository
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

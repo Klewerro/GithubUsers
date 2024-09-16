@@ -1,6 +1,6 @@
 package com.klewerro.githubusers.core.util.testData
 
-import com.klewerro.githubusers.userDetails.domain.GithubRepository
+import com.klewerro.githubusers.userDetails.domain.model.GithubRepository
 
 object GithubRepositoryTestData {
     val repository1 = GithubRepository(

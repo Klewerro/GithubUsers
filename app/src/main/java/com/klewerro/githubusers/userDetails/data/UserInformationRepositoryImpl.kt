@@ -6,10 +6,10 @@ import com.klewerro.githubusers.userDetails.data.mapper.toEntity
 import com.klewerro.githubusers.userDetails.data.mapper.toGithubRepository
 import com.klewerro.githubusers.userDetails.data.mapper.toUserDetails
 import com.klewerro.githubusers.userDetails.data.mapper.toUserDetailsEntity
-import com.klewerro.githubusers.userDetails.domain.GithubRepository
+import com.klewerro.githubusers.userDetails.domain.model.GithubRepository
 import com.klewerro.githubusers.userDetails.domain.UserInformationRemoteDataSource
 import com.klewerro.githubusers.userDetails.domain.UserInformationRepository
-import com.klewerro.githubusers.users.domain.model.UserDetails
+import com.klewerro.githubusers.userDetails.domain.model.UserDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

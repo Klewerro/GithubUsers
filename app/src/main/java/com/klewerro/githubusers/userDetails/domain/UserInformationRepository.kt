@@ -1,6 +1,7 @@
 package com.klewerro.githubusers.userDetails.domain
 
-import com.klewerro.githubusers.users.domain.model.UserDetails
+import com.klewerro.githubusers.userDetails.domain.model.GithubRepository
+import com.klewerro.githubusers.userDetails.domain.model.UserDetails
 import kotlinx.coroutines.flow.Flow
 
 interface UserInformationRepository {
