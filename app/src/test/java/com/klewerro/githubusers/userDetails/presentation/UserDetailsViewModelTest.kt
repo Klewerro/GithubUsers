@@ -9,8 +9,8 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import com.klewerro.githubusers.core.util.testData.UserTestData
-import com.klewerro.githubusers.fake.FakeGithubRepositoryRepository
 import com.klewerro.githubusers.fake.FakeSavedStateProvider
+import com.klewerro.githubusers.fake.FakeUserInformationRepository
 import com.klewerro.githubusers.util.MainCoroutineExtension
 import com.klewerro.githubusers.util.TestDispatchers
 import kotlinx.coroutines.runBlocking
@@ -22,7 +22,7 @@ class UserDetailsViewModelTest {
 
     private lateinit var userDetailsViewModel: UserDetailsViewModel
     private lateinit var fakeSavedState: FakeSavedStateProvider
-    private lateinit var fakeGithubRepositoryRepository: FakeGithubRepositoryRepository
+    private lateinit var fakeGithubRepositoryRepository: FakeUserInformationRepository
 
     companion object {
         @JvmField
@@ -35,7 +35,7 @@ class UserDetailsViewModelTest {
         getUserRepositoriesReturnSuccess: Boolean = true
     ) {
         fakeSavedState = FakeSavedStateProvider()
-        fakeGithubRepositoryRepository = FakeGithubRepositoryRepository(
+        fakeGithubRepositoryRepository = FakeUserInformationRepository(
             userHaveAnyRepository = userHaveAnyRepository,
             getUserRepositoriesReturnSuccess = getUserRepositoriesReturnSuccess
         )

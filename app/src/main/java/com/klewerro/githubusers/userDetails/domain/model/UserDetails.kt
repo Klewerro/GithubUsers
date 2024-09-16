@@ -1,4 +1,4 @@
-package com.klewerro.githubusers.users.domain.model
+package com.klewerro.githubusers.userDetails.domain.model
 
 data class UserDetails(
     val id: Int,

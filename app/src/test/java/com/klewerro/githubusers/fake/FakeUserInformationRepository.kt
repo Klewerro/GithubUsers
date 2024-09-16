@@ -4,7 +4,7 @@ import com.klewerro.githubusers.core.data.error.GithubApiErrorType
 import com.klewerro.githubusers.core.data.error.GithubApiException
 import com.klewerro.githubusers.core.util.testData.GithubRepositoryTestData
 import com.klewerro.githubusers.core.util.testData.UserTestData
-import com.klewerro.githubusers.userDetails.domain.GithubRepository
+import com.klewerro.githubusers.userDetails.domain.model.GithubRepository
 import com.klewerro.githubusers.userDetails.domain.UserInformationRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

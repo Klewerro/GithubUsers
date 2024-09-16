@@ -1,6 +1,6 @@
 package com.klewerro.githubusers.core.util.testData
 
-import com.klewerro.githubusers.users.domain.model.UserDetails
+import com.klewerro.githubusers.userDetails.domain.model.UserDetails
 
 object UserDetailsTestData {
     val userDetails1 = UserDetails(
