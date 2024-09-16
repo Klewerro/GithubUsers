@@ -1,4 +1,4 @@
-package com.klewerro.githubusers.userDetails.data.local
+package com.klewerro.githubusers.userDetails.data.local.githubRepository
 
 import androidx.room.Dao
 import androidx.room.Query

@@ -5,14 +5,14 @@ import com.klewerro.githubusers.core.data.error.GithubApiException
 import com.klewerro.githubusers.core.util.testData.GithubRepositoryTestData
 import com.klewerro.githubusers.core.util.testData.UserTestData
 import com.klewerro.githubusers.userDetails.domain.GithubRepository
-import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRepository
+import com.klewerro.githubusers.userDetails.domain.UserInformationRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-class FakeGithubRepositoryRepository(
+class FakeUserInformationRepository(
     var userHaveAnyRepository: Boolean,
     var defaultDelay: Long = 1_000L,
     var getUserRepositoriesReturnSuccess: Boolean = true,
@@ -23,7 +23,7 @@ class FakeGithubRepositoryRepository(
     ),
     var user1Repos: List<GithubRepository> = savedGithubRepositories.take(2),
     var user2Repos: List<GithubRepository> = listOf(savedGithubRepositories.last())
-) : GithubRepositoryRepository {
+) : UserInformationRepository {
 
     var wasGetUserRepositoriesCalled: Boolean = false
 

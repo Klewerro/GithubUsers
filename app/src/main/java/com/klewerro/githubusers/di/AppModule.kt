@@ -6,11 +6,12 @@ import com.klewerro.githubusers.core.domain.dispatcher.DispatcherProvider
 import com.klewerro.githubusers.core.domain.dispatcher.StandardDispatchers
 import com.klewerro.githubusers.core.presentation.savedState.AndroidSavedStateHandleProvider
 import com.klewerro.githubusers.core.presentation.savedState.SavedStateProvider
-import com.klewerro.githubusers.userDetails.data.GithubRepositoryRepositoryImpl
-import com.klewerro.githubusers.userDetails.data.local.GithubRepositoryDao
-import com.klewerro.githubusers.userDetails.data.remote.KtorGithubRepositoryRemoteDataSource
-import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRemoteDataSource
-import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRepository
+import com.klewerro.githubusers.userDetails.data.UserInformationRepositoryImpl
+import com.klewerro.githubusers.userDetails.data.local.githubRepository.GithubRepositoryDao
+import com.klewerro.githubusers.userDetails.data.local.userDetails.UserDetailsDao
+import com.klewerro.githubusers.userDetails.data.remote.KtorUserInformationRemoteDataSource
+import com.klewerro.githubusers.userDetails.domain.UserInformationRemoteDataSource
+import com.klewerro.githubusers.userDetails.domain.UserInformationRepository
 import com.klewerro.githubusers.userDetails.presentation.UserDetailsViewModel
 import com.klewerro.githubusers.users.data.UserRepositoryImpl
 import com.klewerro.githubusers.users.data.local.keyValue.DataStoreAppPreferences
@@ -38,7 +39,7 @@ val appModule = module {
     viewModel {
         UserDetailsViewModel(
             savedState = get(),
-            githubRepositoryRepository = get(),
+            userInformationRepository = get(),
             dispatches = get()
         )
     }
@@ -56,17 +57,21 @@ val appModule = module {
         DataStoreAppPreferences(context = androidContext())
     }
 
-    single<GithubRepositoryRepository> {
-        GithubRepositoryRepositoryImpl(
+    single<UserInformationRepository> {
+        UserInformationRepositoryImpl(
             githubRepositoryDao = get(),
-            githubRepositoryRemoteDataSource = get()
+            userDetailsDao = get(),
+            userInformationRemoteDataSource = get()
         )
     }
     single<GithubRepositoryDao> {
         get<CacheDatabase>().githubRepositoryDao
     }
-    single<GithubRepositoryRemoteDataSource> {
-        KtorGithubRepositoryRemoteDataSource(httpClient = get())
+    single<UserDetailsDao> {
+        get<CacheDatabase>().userDetailsDao
+    }
+    single<UserInformationRemoteDataSource> {
+        KtorUserInformationRemoteDataSource(httpClient = get())
     }
 
     single<DispatcherProvider> {
