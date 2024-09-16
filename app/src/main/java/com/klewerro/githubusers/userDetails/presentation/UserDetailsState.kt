@@ -2,8 +2,8 @@ package com.klewerro.githubusers.userDetails.presentation
 
 import com.klewerro.githubusers.core.data.error.GithubApiException
 import com.klewerro.githubusers.userDetails.domain.model.GithubRepository
-import com.klewerro.githubusers.users.domain.model.User
 import com.klewerro.githubusers.userDetails.domain.model.UserDetails
+import com.klewerro.githubusers.users.domain.model.User
 
 data class UserDetailsState(
     val user: User,
