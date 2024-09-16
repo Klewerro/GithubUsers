@@ -40,7 +40,6 @@ fun UserDetailsScreen(
     snackbarHostState: SnackbarHostState,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    onUserInformationUpdated: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -54,12 +53,6 @@ fun UserDetailsScreen(
                 duration = SnackbarDuration.Long
             )
             userDetailsViewModel.onEvent(UserDetailsEvent.DismissError)
-        }
-    }
-
-    LaunchedEffect(state.userDetails?.inAppRefreshedAt) {
-        state.userDetails?.inAppRefreshedAt?.let {
-            onUserInformationUpdated(it)
         }
     }
 

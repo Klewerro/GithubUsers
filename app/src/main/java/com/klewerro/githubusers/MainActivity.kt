@@ -52,10 +52,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             GithubUsersTheme {
                 val navController = rememberNavController()
+                val snackbarHostState = remember { SnackbarHostState() }
                 var isNavigateBackPossible by remember {
                     mutableStateOf(false)
                 }
-                val snackbarHostState = remember { SnackbarHostState() }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
