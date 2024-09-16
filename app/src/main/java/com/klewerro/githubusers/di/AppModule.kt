@@ -4,8 +4,6 @@ import androidx.room.Room
 import com.klewerro.githubusers.core.data.local.CacheDatabase
 import com.klewerro.githubusers.core.domain.dispatcher.DispatcherProvider
 import com.klewerro.githubusers.core.domain.dispatcher.StandardDispatchers
-import com.klewerro.githubusers.core.presentation.savedState.AndroidSavedStateHandleProvider
-import com.klewerro.githubusers.core.presentation.savedState.SavedStateProvider
 import com.klewerro.githubusers.userDetails.data.UserInformationRepositoryImpl
 import com.klewerro.githubusers.userDetails.data.local.githubRepository.GithubRepositoryDao
 import com.klewerro.githubusers.userDetails.data.local.userDetails.UserDetailsDao
@@ -40,7 +38,9 @@ val appModule = module {
         UserDetailsViewModel(
             savedState = get(),
             userInformationRepository = get(),
-            dispatches = get()
+            dispatches = get(),
+            getAndObserveUserDetailsUseCase = get(),
+            getAndObserveRepositoriesUseCase = get()
         )
     }
     single<UserRepository> {
@@ -76,9 +76,6 @@ val appModule = module {
 
     single<DispatcherProvider> {
         StandardDispatchers()
-    }
-    single<SavedStateProvider> {
-        AndroidSavedStateHandleProvider(savedStateHandle = get())
     }
     single {
         Room.databaseBuilder(
