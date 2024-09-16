@@ -31,7 +31,7 @@ import com.klewerro.githubusers.R
 import com.klewerro.githubusers.core.presentation.composable.TextIcon
 import com.klewerro.githubusers.core.util.testData.GithubRepositoryTestData
 import com.klewerro.githubusers.ui.theme.GithubUsersTheme
-import com.klewerro.githubusers.userDetails.domain.GithubRepository
+import com.klewerro.githubusers.userDetails.domain.model.GithubRepository
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.klewerro.githubusers.userDetails.domain
+package com.klewerro.githubusers.userDetails.domain.model
 
 data class GithubRepository(
     val id: Int,

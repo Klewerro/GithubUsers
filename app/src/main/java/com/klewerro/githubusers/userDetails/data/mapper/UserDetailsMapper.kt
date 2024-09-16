@@ -2,7 +2,7 @@ package com.klewerro.githubusers.userDetails.data.mapper
 
 import com.klewerro.githubusers.userDetails.data.local.userDetails.UserDetailsEntity
 import com.klewerro.githubusers.userDetails.data.remote.UserDetailsDto
-import com.klewerro.githubusers.users.domain.model.UserDetails
+import com.klewerro.githubusers.userDetails.domain.model.UserDetails
 
 fun UserDetailsEntity.toUserDetails() = UserDetails(
     id = this.id,

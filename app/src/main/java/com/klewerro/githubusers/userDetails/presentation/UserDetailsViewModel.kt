@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.klewerro.githubusers.core.data.error.GithubApiException
 import com.klewerro.githubusers.core.domain.dispatcher.DispatcherProvider
 import com.klewerro.githubusers.core.presentation.savedState.SavedStateProvider
-import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRepository
+import com.klewerro.githubusers.userDetails.domain.UserInformationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +19,7 @@ import timber.log.Timber
 
 class UserDetailsViewModel(
     savedState: SavedStateProvider,
-    private val githubRepositoryRepository: GithubRepositoryRepository,
+    private val userInformationRepository: UserInformationRepository,
     private val dispatches: DispatcherProvider
 ) : ViewModel() {
 
@@ -38,6 +38,7 @@ class UserDetailsViewModel(
         UserDetailsState(
             user = userValue,
             repositories = stateValue.repositories,
+            userDetails = stateValue.userDetails,
             apiError = stateValue.apiError,
             isLoading = stateValue.isLoading
         )
@@ -48,6 +49,7 @@ class UserDetailsViewModel(
     )
 
     init {
+        getUserDetailsAndObserve()
         getRepositoriesAndObserve()
     }
 
@@ -57,7 +59,40 @@ class UserDetailsViewModel(
                 it.copy(apiError = null)
             }
 
-            UserDetailsEvent.RefreshData -> getRepositories()
+            UserDetailsEvent.RefreshData -> {
+                getUserDetails()
+                getRepositories()
+            }
+        }
+    }
+
+    private fun getUserDetailsAndObserve() {
+        val user = state.value.user
+        viewModelScope.launch(dispatches.io) {
+            startLoading()
+            val alreadyHaveSavedUserDetails =
+                userInformationRepository.userHaveSavedUserDetails(user.id)
+            if (!alreadyHaveSavedUserDetails) {
+                Timber.i("Local user details not found, so fetching from API.")
+                userInformationRepository.getUserDetails(user.login)
+            } else {
+                Timber.i("Local user details found, so only observing db.")
+            }
+
+            userInformationRepository.observeUserDetails(user.id)
+                .onEach { userDetails ->
+                    Timber.d("Received local user details.")
+                    _state.update {
+                        it.copy(
+                            userDetails = userDetails
+                        )
+                    }
+                }
+                .launchIn(this)
+
+            if (alreadyHaveSavedUserDetails) {
+                endLoading()
+            }
         }
     }
 
@@ -65,15 +100,15 @@ class UserDetailsViewModel(
         viewModelScope.launch(dispatches.io) {
             startLoading()
             val userHaveAnyRepository =
-                githubRepositoryRepository.userHaveAnyRepository(state.value.user.id)
+                userInformationRepository.userHaveAnyRepository(state.value.user.id)
             if (!userHaveAnyRepository) {
                 Timber.i("Local user repos not found, so fetching from API.")
                 getRepositories()
             } else {
-                Timber.i("Local user repos found, so only observing db")
+                Timber.i("Local user repos found, so only observing db.")
             }
 
-            githubRepositoryRepository.observeUserRepositories(user.value.id)
+            userInformationRepository.observeUserRepositories(user.value.id)
                 .onEach { repos ->
                     Timber.d("Received ${repos.size} local user repos.")
                     _state.update {
@@ -83,8 +118,28 @@ class UserDetailsViewModel(
                     }
                 }
                 .launchIn(this)
+
             if (userHaveAnyRepository) {
                 endLoading()
+            }
+        }
+    }
+
+    private fun getUserDetails() {
+        startLoading()
+        val userLogin = user.value.login
+        viewModelScope.launch(dispatches.io) {
+            try {
+                userInformationRepository.getUserDetails(userLogin)
+                endLoading()
+            } catch (apiException: GithubApiException) {
+                Timber.e(apiException, "Error in getting user details.")
+                _state.update {
+                    it.copy(
+                        apiError = apiException,
+                        isLoading = false
+                    )
+                }
             }
         }
     }
@@ -95,7 +150,7 @@ class UserDetailsViewModel(
         val userId = user.value.id
         viewModelScope.launch(dispatches.io) {
             try {
-                githubRepositoryRepository.getUserRepositories(userId, userLogin)
+                userInformationRepository.getUserRepositories(userId, userLogin)
                 endLoading()
             } catch (apiException: GithubApiException) {
                 Timber.e(apiException, "Error in getting user repositories.")
