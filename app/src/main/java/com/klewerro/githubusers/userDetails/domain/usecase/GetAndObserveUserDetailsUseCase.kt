@@ -8,18 +8,22 @@ import timber.log.Timber
 class GetAndObserveUserDetailsUseCase(
     private val userInformationRepository: UserInformationRepository
 ) {
+    var isFlowInitialized = false
+    lateinit var flowInternal: Flow<UserDetails>
+
     suspend operator fun invoke(userId: Int, userLogin: String): Flow<UserDetails> {
-        try {
-            val alreadyHaveSavedUserDetails =
-                userInformationRepository.userHaveSavedUserDetails(userId)
-            if (!alreadyHaveSavedUserDetails) {
-                userInformationRepository.getUserDetails(userLogin)
-            } else {
-                Timber.i("Local user details found, so only observing db.")
-            }
-        } finally {
-            // Possible exceptions fill be thrown anyway inside flow
-            return userInformationRepository.observeUserDetails(userId)
+        val alreadyHaveSavedUserDetails =
+            userInformationRepository.userHaveSavedUserDetails(userId)
+        if (!alreadyHaveSavedUserDetails) {
+            userInformationRepository.getUserDetails(userLogin)
+        } else {
+            Timber.i("Local user details found, so only observing db.")
+        }
+        return if (isFlowInitialized) {
+            flowInternal
+        } else {
+            flowInternal = userInformationRepository.observeUserDetails(userId)
+            flowInternal
         }
     }
 }
