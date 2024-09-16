@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 data class UserDetailsDto(
     val id: Int,
     val login: String,
-    val name: String,
-    val location: String,
-    val bio: String,
+    val name: String?,
+    val location: String?,
+    val bio: String?,
     val blog: String,
     val company: String?,
     @SerialName("created_at")

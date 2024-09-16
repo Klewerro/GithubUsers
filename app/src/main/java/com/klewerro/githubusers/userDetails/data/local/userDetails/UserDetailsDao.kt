@@ -14,7 +14,7 @@ interface UserDetailsDao {
     @Upsert
     suspend fun upsertItem(userDetailsEntity: UserDetailsEntity)
 
-    @Query("SELECT COUNT(id) from github_repository where user_id = :id limit 1")
+    @Query("SELECT COUNT(id) from user_details where id = :id limit 1")
     suspend fun isExist(id: Int): Boolean
 
     @Query("DELETE from user_details")
