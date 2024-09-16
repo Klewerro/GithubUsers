@@ -1,5 +1,6 @@
 package com.klewerro.githubusers.userDetails.data.mapper
 
+import com.klewerro.githubusers.core.util.convertIso8601DateToLocalDateTime
 import com.klewerro.githubusers.userDetails.data.local.userDetails.UserDetailsEntity
 import com.klewerro.githubusers.userDetails.data.remote.UserDetailsDto
 import com.klewerro.githubusers.userDetails.domain.model.UserDetails
@@ -18,8 +19,8 @@ fun UserDetailsEntity.toUserDetails() = UserDetails(
     publicReposCount = this.publicReposCount,
     followersCount = this.followersCount,
     followingCount = this.followingCount,
-    createdAt = this.createdAt,
-    updatedAt = this.updatedAt,
+    createdAt = convertIso8601DateToLocalDateTime(this.createdAt),
+    updatedAt = convertIso8601DateToLocalDateTime(this.updatedAt),
     url = this.url,
     inAppRefreshedAt = this.inAppRefreshedAt
 )
