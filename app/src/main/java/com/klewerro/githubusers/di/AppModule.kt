@@ -2,6 +2,10 @@ package com.klewerro.githubusers.di
 
 import androidx.room.Room
 import com.klewerro.githubusers.core.data.local.CacheDatabase
+import com.klewerro.githubusers.core.domain.dispatcher.DispatcherProvider
+import com.klewerro.githubusers.core.domain.dispatcher.StandardDispatchers
+import com.klewerro.githubusers.core.presentation.savedState.AndroidSavedStateHandleProvider
+import com.klewerro.githubusers.core.presentation.savedState.SavedStateProvider
 import com.klewerro.githubusers.userDetails.data.GithubRepositoryRepositoryImpl
 import com.klewerro.githubusers.userDetails.data.local.GithubRepositoryDao
 import com.klewerro.githubusers.userDetails.data.remote.KtorGithubRepositoryRemoteDataSource
@@ -32,7 +36,11 @@ val appModule = module {
         UsersViewModel(userRepository = get())
     }
     viewModel {
-        UserDetailsViewModel(savedState = get(), githubRepositoryRepository = get())
+        UserDetailsViewModel(
+            savedState = get(),
+            githubRepositoryRepository = get(),
+            dispatches = get()
+        )
     }
     single<UserRepository> {
         UserRepositoryImpl(
@@ -61,6 +69,12 @@ val appModule = module {
         KtorGithubRepositoryRemoteDataSource(httpClient = get())
     }
 
+    single<DispatcherProvider> {
+        StandardDispatchers()
+    }
+    single<SavedStateProvider> {
+        AndroidSavedStateHandleProvider(savedStateHandle = get())
+    }
     single {
         Room.databaseBuilder(
             androidContext(),
