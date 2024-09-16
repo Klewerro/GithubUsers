@@ -14,13 +14,17 @@ class GithubRepositoryRepositoryImpl(
     private val githubRepositoryRemoteDataSource: GithubRepositoryRemoteDataSource
 ) : GithubRepositoryRepository {
 
-    override fun observeUserRepositories(userId: Int): Flow<List<GithubRepository>> = githubRepositoryDao
-        .getUserRepositories(userId)
-        .map {
-            it.map { githubRepositoryEntity ->
-                githubRepositoryEntity.toGithubRepository()
+    override fun observeUserRepositories(userId: Int): Flow<List<GithubRepository>> =
+        githubRepositoryDao
+            .getUserRepositories(userId)
+            .map {
+                it.map { githubRepositoryEntity ->
+                    githubRepositoryEntity.toGithubRepository()
+                }
             }
-        }
+
+    override suspend fun userHaveAnyRepository(userId: Int) =
+        githubRepositoryDao.userRepositoriesCount(userId) > 0
 
     override suspend fun getUserRepositories(userId: Int, login: String) {
         val repos = githubRepositoryRemoteDataSource.getUserRepositories(login)

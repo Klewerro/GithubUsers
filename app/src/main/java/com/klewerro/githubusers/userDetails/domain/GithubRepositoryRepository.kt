@@ -6,4 +6,5 @@ interface GithubRepositoryRepository {
 
     fun observeUserRepositories(userId: Int): Flow<List<GithubRepository>>
     suspend fun getUserRepositories(userId: Int, login: String)
+    suspend fun userHaveAnyRepository(userId: Int): Boolean
 }
