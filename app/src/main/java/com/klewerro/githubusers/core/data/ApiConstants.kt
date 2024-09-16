@@ -9,6 +9,7 @@ object ApiConstants {
     const val PARAM_QUERY = "q"
     const val HEADER_REMAINING_RATE = "x-ratelimit-remaining"
     const val HEADER_RATE_LIMIT_RESET_TIME = "x-ratelimit-reset"
+    fun userDetails(login: String) = BASE_URL + "users/$login"
 
     fun userReposUrl(login: String) = BASE_URL + "users/$login/repos"
     const val PARAM_SORT = "sort"
