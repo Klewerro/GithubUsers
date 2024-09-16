@@ -1,5 +1,6 @@
 package com.klewerro.githubusers.userDetails.presentation
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.klewerro.githubusers.core.data.error.GithubApiErrorType
 import com.klewerro.githubusers.core.data.error.GithubApiException
@@ -8,6 +9,8 @@ import com.klewerro.githubusers.core.presentation.savedState.SavedStateProvider
 import com.klewerro.githubusers.userDetails.domain.UserInformationRepository
 import com.klewerro.githubusers.userDetails.domain.usecase.GetAndObserveRepositoriesUseCase
 import com.klewerro.githubusers.userDetails.domain.usecase.GetAndObserveUserDetailsUseCase
+import com.klewerro.githubusers.users.domain.model.User
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,18 +21,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.androidx.scope.ScopeViewModel
-import org.koin.core.annotation.KoinExperimentalAPI
 import timber.log.Timber
 
-@OptIn(KoinExperimentalAPI::class)
 class UserDetailsViewModel(
     savedState: SavedStateProvider,
     private val userInformationRepository: UserInformationRepository,
     private val dispatches: DispatcherProvider,
     private val getAndObserveUserDetailsUseCase: GetAndObserveUserDetailsUseCase,
     private val getAndObserveRepositoriesUseCase: GetAndObserveRepositoriesUseCase
-) : ScopeViewModel() {
+) : ViewModel() {
 
     private val user = MutableStateFlow(savedState.getUser())
 
@@ -61,31 +61,8 @@ class UserDetailsViewModel(
             try {
                 val user = state.value.user
                 startLoading()
-                getAndObserveUserDetailsUseCase(user.id, user.login)
-                    .onEach { userDetails ->
-                        _state.update {
-                            it.copy(
-                                userDetails = userDetails
-                            )
-                        }
-                    }
-                    .catch { throwable ->
-                        unexpectedFlowErrorStateUpdate(throwable)
-                    }
-                    .launchIn(this)
-                getAndObserveRepositoriesUseCase(user.id, user.login)
-                    .onEach { repos ->
-                        Timber.d("Received ${repos.size} local user repos.")
-                        _state.update {
-                            it.copy(
-                                repositories = repos
-                            )
-                        }
-                    }
-                    .catch { throwable ->
-                        unexpectedFlowErrorStateUpdate(throwable)
-                    }
-                    .launchIn(this)
+                getAndObserveUserDetails(user, this)
+                getAndObserveRepositories(user, this)
                 endLoading()
             } catch (apiException: GithubApiException) {
                 Timber.e(
@@ -109,38 +86,52 @@ class UserDetailsViewModel(
             }
 
             UserDetailsEvent.RefreshData -> {
-                getUserDetails()
-                getRepositories()
+                startLoading()
+                viewModelScope.launch(dispatches.io) {
+                    runCatchGithubApiException {
+                        getAndObserveUserDetails(state.value.user, this)
+                        getAndObserveRepositories(state.value.user, this)
+                    }
+                    endLoading()
+                }
             }
-        }
-    }
-
-    private fun getUserDetails() {
-        startLoading()
-        val userLogin = user.value.login
-        viewModelScope.launch(dispatches.io) {
-            runCatchGithubApiException {
-                userInformationRepository.getUserDetails(userLogin)
-            }
-            endLoading()
-        }
-    }
-
-    private fun getRepositories() {
-        startLoading()
-        val userLogin = user.value.login
-        val userId = user.value.id
-        viewModelScope.launch(dispatches.io) {
-            runCatchGithubApiException {
-                userInformationRepository.getUserRepositories(userId, userLogin)
-            }
-            endLoading()
         }
     }
 
     private fun startLoading() = _state.update { it.copy(isLoading = true) }
 
     private fun endLoading() = _state.update { it.copy(isLoading = false) }
+
+    private suspend fun getAndObserveRepositories(user: User, coroutineState: CoroutineScope) {
+        getAndObserveRepositoriesUseCase(user.id, user.login)
+            .onEach { repos ->
+                Timber.d("Received ${repos.size} local user repos.")
+                _state.update {
+                    it.copy(
+                        repositories = repos
+                    )
+                }
+            }
+            .catch { throwable ->
+                unexpectedFlowErrorStateUpdate(throwable)
+            }
+            .launchIn(coroutineState)
+    }
+
+    private suspend fun getAndObserveUserDetails(user: User, coroutineState: CoroutineScope) {
+        getAndObserveUserDetailsUseCase(user.id, user.login)
+            .onEach { userDetails ->
+                _state.update {
+                    it.copy(
+                        userDetails = userDetails
+                    )
+                }
+            }
+            .catch { throwable ->
+                unexpectedFlowErrorStateUpdate(throwable)
+            }
+            .launchIn(coroutineState)
+    }
 
     private suspend fun runCatchGithubApiException(function: suspend () -> Unit) {
         try {
