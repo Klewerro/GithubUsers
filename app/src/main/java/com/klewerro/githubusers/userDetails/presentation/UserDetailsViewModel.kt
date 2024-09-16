@@ -27,10 +27,8 @@ class UserDetailsViewModel(
     savedState: SavedStateProvider,
     private val userInformationRepository: UserInformationRepository,
     private val dispatches: DispatcherProvider,
-    private val getAndObserveUserDetailsUseCase: GetAndObserveUserDetailsUseCase =
-        GetAndObserveUserDetailsUseCase(userInformationRepository),
-    private val getAndObserveRepositoriesUseCase: GetAndObserveRepositoriesUseCase =
-        GetAndObserveRepositoriesUseCase(userInformationRepository)
+    private val getAndObserveUserDetailsUseCase: GetAndObserveUserDetailsUseCase,
+    private val getAndObserveRepositoriesUseCase: GetAndObserveRepositoriesUseCase
 ) : ScopeViewModel() {
 
     private val user = MutableStateFlow(savedState.getUser())
