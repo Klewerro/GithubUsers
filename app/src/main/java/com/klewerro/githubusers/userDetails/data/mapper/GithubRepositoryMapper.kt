@@ -1,6 +1,6 @@
 package com.klewerro.githubusers.userDetails.data.mapper
 
-import com.klewerro.githubusers.userDetails.data.local.GithubRepositoryEntity
+import com.klewerro.githubusers.userDetails.data.local.githubRepository.GithubRepositoryEntity
 import com.klewerro.githubusers.userDetails.data.remote.GithubRepositoryDto
 import com.klewerro.githubusers.userDetails.domain.GithubRepository
 import java.time.LocalDateTime
