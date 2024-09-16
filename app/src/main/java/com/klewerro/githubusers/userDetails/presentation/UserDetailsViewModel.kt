@@ -7,9 +7,9 @@ import androidx.navigation.toRoute
 import com.klewerro.githubusers.core.data.error.GithubApiException
 import com.klewerro.githubusers.core.presentation.navigation.CustomNavType
 import com.klewerro.githubusers.core.presentation.navigation.NavRoutes
-import com.klewerro.githubusers.userDetails.domain.GithubRepository
 import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRepository
 import com.klewerro.githubusers.users.domain.model.User
+import kotlin.reflect.typeOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.reflect.typeOf
+import timber.log.Timber
 
 class UserDetailsViewModel(
     savedState: SavedStateHandle,
@@ -32,43 +32,92 @@ class UserDetailsViewModel(
             typeMap = mapOf(typeOf<User>() to CustomNavType.UserType)
         ).user
     )
-    private val repositories = MutableStateFlow<List<GithubRepository>>(emptyList())
-    val state: StateFlow<UserDetailsState> = combine(
-        user,
-        repositories
-    ) { userValue, repositories ->
+
+    private val _state = MutableStateFlow(
         UserDetailsState(
-            userValue,
-            repositories
+            // I can do that, because value is from NavigationComponent using SavedStateHandle
+            user = user.value
+        )
+    )
+    val state: StateFlow<UserDetailsState> = combine(
+        _state,
+        user
+    ) { _state, userValue ->
+        UserDetailsState(
+            user = userValue,
+            repositories = _state.repositories,
+            apiError = _state.apiError,
+            isLoading = _state.isLoading
         )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(10_000),
-        UserDetailsState(
-            // I can do that, because value is from NavigationComponent using SavedStateHandle
-            user.value
-        )
+        UserDetailsState(user = user.value)
     )
 
     init {
-        githubRepositoryRepository.observeUserRepositories(user.value.id)
-            .onEach { repos ->
-                repositories.update { repos }
+        getRepositoriesAndObserve()
+    }
+
+    fun onEvent(event: UserDetailsEvent) {
+        when (event) {
+            UserDetailsEvent.DismissError -> _state.update {
+                it.copy(apiError = null)
             }
-            .launchIn(viewModelScope)
-        getRepositories()
+
+            UserDetailsEvent.RefreshData -> getRepositories()
+        }
+    }
+
+    private fun getRepositoriesAndObserve() {
+        viewModelScope.launch(Dispatchers.IO) {
+            startLoading()
+            val userHaveAnyRepository =
+                githubRepositoryRepository.userHaveAnyRepository(state.value.user.id)
+            if (!userHaveAnyRepository) {
+                Timber.i("Local user repos not found, so fetching from API.")
+                getRepositories()
+            } else {
+                Timber.i("Local user repos found, so only observing db")
+            }
+
+            githubRepositoryRepository.observeUserRepositories(user.value.id)
+                .onEach { repos ->
+                    Timber.d("Received ${repos.size} local user repos.")
+                    _state.update {
+                        it.copy(
+                            repositories = repos
+                        )
+                    }
+                }
+                .launchIn(this)
+            if (userHaveAnyRepository) {
+                endLoading()
+            }
+        }
     }
 
     private fun getRepositories() {
+        startLoading()
         val userLogin = user.value.login
         val userId = user.value.id
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 githubRepositoryRepository.getUserRepositories(userId, userLogin)
+                endLoading()
             } catch (apiException: GithubApiException) {
-                apiException.printStackTrace()
-                // Todo: implement showing error
+                Timber.e(apiException, "Error in getting user repositories.")
+                _state.update {
+                    it.copy(
+                        apiError = apiException,
+                        isLoading = false
+                    )
+                }
             }
         }
     }
+
+    private fun startLoading() = _state.update { it.copy(isLoading = true) }
+
+    private fun endLoading() = _state.update { it.copy(isLoading = false) }
 }

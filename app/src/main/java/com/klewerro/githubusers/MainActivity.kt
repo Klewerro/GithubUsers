@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -53,8 +55,11 @@ class MainActivity : ComponentActivity() {
                 var isNavigateBackPossible by remember {
                     mutableStateOf(false)
                 }
+                val snackbarHostState = remember { SnackbarHostState() }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
                     topBar = {
                         TopAppBar(
                             title = {
@@ -117,6 +122,7 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     isNavigateBackPossible = true
                                     UserDetailsScreen(
+                                        snackbarHostState = snackbarHostState,
                                         sharedTransitionScope = this@SharedTransitionLayout,
                                         animatedVisibilityScope = this@composable
                                     )
