@@ -1,16 +1,11 @@
 package com.klewerro.githubusers.userDetails.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.klewerro.githubusers.core.data.error.GithubApiException
-import com.klewerro.githubusers.core.presentation.navigation.CustomNavType
-import com.klewerro.githubusers.core.presentation.navigation.NavRoutes
+import com.klewerro.githubusers.core.domain.dispatcher.DispatcherProvider
+import com.klewerro.githubusers.core.presentation.savedState.SavedStateProvider
 import com.klewerro.githubusers.userDetails.domain.GithubRepositoryRepository
-import com.klewerro.githubusers.users.domain.model.User
-import kotlin.reflect.typeOf
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,15 +18,12 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class UserDetailsViewModel(
-    savedState: SavedStateHandle,
-    private val githubRepositoryRepository: GithubRepositoryRepository
+    savedState: SavedStateProvider,
+    private val githubRepositoryRepository: GithubRepositoryRepository,
+    private val dispatches: DispatcherProvider
 ) : ViewModel() {
 
-    private val user = MutableStateFlow(
-        savedState.toRoute<NavRoutes.UserDetailsScreen>(
-            typeMap = mapOf(typeOf<User>() to CustomNavType.UserType)
-        ).user
-    )
+    private val user = MutableStateFlow(savedState.getUser())
 
     private val _state = MutableStateFlow(
         UserDetailsState(
@@ -42,12 +34,12 @@ class UserDetailsViewModel(
     val state: StateFlow<UserDetailsState> = combine(
         _state,
         user
-    ) { _state, userValue ->
+    ) { stateValue, userValue ->
         UserDetailsState(
             user = userValue,
-            repositories = _state.repositories,
-            apiError = _state.apiError,
-            isLoading = _state.isLoading
+            repositories = stateValue.repositories,
+            apiError = stateValue.apiError,
+            isLoading = stateValue.isLoading
         )
     }.stateIn(
         viewModelScope,
@@ -70,7 +62,7 @@ class UserDetailsViewModel(
     }
 
     private fun getRepositoriesAndObserve() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatches.io) {
             startLoading()
             val userHaveAnyRepository =
                 githubRepositoryRepository.userHaveAnyRepository(state.value.user.id)
@@ -101,7 +93,7 @@ class UserDetailsViewModel(
         startLoading()
         val userLogin = user.value.login
         val userId = user.value.id
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatches.io) {
             try {
                 githubRepositoryRepository.getUserRepositories(userId, userLogin)
                 endLoading()
